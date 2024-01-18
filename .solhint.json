@@ -1,0 +1,16 @@
+{
+	"extends": "solhint:recommended",
+	"rules": {
+		"code-complexity": ["warn", 6],
+		"function-max-lines": ["warn", 60],
+		"max-line-length": ["warn", 120],
+		"named-parameters-mapping": "warn",
+		"func-visibility": ["error", { "ignoreConstructors": true }],
+		"private-vars-leading-underscore": ["error", { "strict": true }],
+		"compiler-version": ["error", "^0.8.18"],
+		"imports-on-top": "error",
+		"check-send-result": "error",
+		"reentrancy": "error",
+		"modifier-name-mixedcase": "warn"
+	}
+}
