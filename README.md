@@ -3,6 +3,21 @@
 Here are all the smart-contracts used by Chainless.
 
 - **ChainlessPermissionedSwap**: A contract to buy and sell RWA tokens requiring permission from Chainless.
+- **Paymaster**: A contract that charges gas fees from Account Abstraction users using an ERC20 token.
+
+## Cloning
+
+Submodules may download the entire history, to shallow clone them execute one of the following commands.
+
+When cloning the repository for the first time make sure you also initialize the submodules:
+```sh
+git clone --recurse-submodules
+```
+
+If you have not cloned using the above flag, you can shallow clone the submodules with this:
+```sh
+git submodule update --init --depth=1
+```
 
 ## Foundry
 
