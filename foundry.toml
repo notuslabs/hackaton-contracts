@@ -8,4 +8,11 @@ bracket_spacing = true
 number_underscore = "thousands"
 wrap_comments = true
 
+[rpc_endpoints]
+polygon = "${POLYGON_RPC_URL}"
+mumbai = "${MUMBAI_RPC_URL}"
+
+[etherscan]
+polygon = { key = "${ETHERSCAN_API_KEY}" }
+mumbai = { key = "${ETHERSCAN_API_KEY}" }
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
