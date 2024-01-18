@@ -25,6 +25,31 @@ contract ChainlessPermissionedSwap is UUPSUpgradeable, OwnableUpgradeable {
     using SafeERC20 for IERC20;
 
     /**
+     * Error for when the expected transaction hash doesn't match the computed hash
+     */
+    error TransactionHashMismatch(bytes32 actual, bytes32 expected);
+
+    /**
+     * Error for when the transaction is not pending an execution
+     */
+    error TransactionNotPending(bytes32 txHash);
+
+    /**
+     * Error for when the transaction is already pending an execution
+     */
+    error TransactionAlreadyPending(bytes32 txHash);
+
+    /**
+     * Error for when trying to request swap with random tokens
+     */
+    error TokenNotAllowed(IERC20 token);
+
+    /**
+     * Error for when trying to request a swap with lower than minimum amount
+     */
+    error AmountSentBelowMinimum(IERC20 token, uint256 sentAmount, uint256 expectedAmount);
+
+    /**
      * @notice Get the current transaction nonce
      *
      * @dev We use an custom nonce so every request by a user is sure to be unique
@@ -132,9 +157,15 @@ contract ChainlessPermissionedSwap is UUPSUpgradeable, OwnableUpgradeable {
      * @param payAmount - Amount of the above token
      */
     function invest(IERC20 token, address recipient, IERC20 payWith, uint256 payAmount) external returns (bytes32) {
-        require(_investTokens[address(token)] != 0, "ERR_INVALID_OUT_TOKEN");
-        require(payAmount >= _fiatTokens[address(payWith)], "ERR_MIN_PAY_TOKEN");
-        return _txRequest(token, msg.sender, recipient, payWith, payAmount);
+        return _txRequest(
+            token,
+            msg.sender,
+            recipient,
+            payWith,
+            payAmount,
+            _fiatTokens[address(payWith)],
+            _investTokens[address(token)]
+        );
     }
 
     /**
@@ -146,9 +177,15 @@ contract ChainlessPermissionedSwap is UUPSUpgradeable, OwnableUpgradeable {
      * @param payAmount - Amount of the above token
      */
     function withdraw(IERC20 token, address recipient, IERC20 payWith, uint256 payAmount) external returns (bytes32) {
-        require(_fiatTokens[address(token)] != 0, "ERR_INVALID_OUT_TOKEN");
-        require(payAmount >= _investTokens[address(payWith)], "ERR_MIN_PAY_TOKEN");
-        return _txRequest(token, recipient, msg.sender, payWith, payAmount);
+        return _txRequest(
+            token,
+            recipient,
+            msg.sender,
+            payWith,
+            payAmount,
+            _investTokens[address(payWith)],
+            _fiatTokens[address(token)]
+        );
     }
 
     /**
@@ -160,15 +197,32 @@ contract ChainlessPermissionedSwap is UUPSUpgradeable, OwnableUpgradeable {
      * @param payWith - ERC20 token that the payer will send us
      * @param payAmount - Amount of the above token
      */
-    function _txRequest(IERC20 token, address recipient, address payer, IERC20 payWith, uint256 payAmount)
-        private
-        returns (bytes32)
-    {
-        require(payAmount != 0, "ERR_ZERO_AMOUNT");
+    function _txRequest(
+        IERC20 token,
+        address recipient,
+        address payer,
+        IERC20 payWith,
+        uint256 payAmount,
+        uint256 payWithMinimum,
+        uint256 receiveTokenMinimum
+    ) private returns (bytes32) {
+        if (receiveTokenMinimum == 0) {
+            revert TokenNotAllowed(token);
+        }
+
+        if (payWithMinimum == 0) {
+            revert TokenNotAllowed(payWith);
+        }
+
+        if (payAmount < payWithMinimum) {
+            revert AmountSentBelowMinimum(payWith, payAmount, payWithMinimum);
+        }
 
         bytes32 txHash = keccak256(abi.encodePacked(_txNonce, token, recipient, payer, payWith, payAmount));
 
-        require(!_pendingTxs[txHash], "ERR_TX_ALREADY_PENDING");
+        if (_pendingTxs[txHash]) {
+            revert TransactionAlreadyPending(txHash);
+        }
 
         _pendingTxs[txHash] = true;
         _pendingTxToIndex[txHash] = _pendingTxHashes.length;
@@ -206,10 +260,15 @@ contract ChainlessPermissionedSwap is UUPSUpgradeable, OwnableUpgradeable {
         IERC20 payWith,
         uint256 payAmount
     ) external onlyOwner {
-        require(_pendingTxs[txHash], "ERR_TX_NOT_PENDING");
+        if (!_pendingTxs[txHash]) {
+            revert TransactionNotPending(txHash);
+        }
 
         bytes32 checkHash = keccak256(abi.encodePacked(txNonce, receiveToken, recipient, payer, payWith, payAmount));
-        require(checkHash == txHash, "ERR_TX_HASH_MISMATCH");
+
+        if (checkHash != txHash) {
+            revert TransactionHashMismatch(checkHash, txHash);
+        }
 
         _pendingTxs[txHash] = false;
         uint256 deleteIndex = _pendingTxToIndex[txHash];
