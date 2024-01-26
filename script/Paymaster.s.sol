@@ -2,8 +2,7 @@
 pragma solidity ^0.8.18;
 
 import { Script } from "forge-std/Script.sol";
-import { ERC1967Proxy } from
-    "openzeppelin-contracts-upgradeable/lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import { ERC1967Proxy } from "openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import { ChainlessPaymaster } from "src/Paymaster.sol";
 import { IEntryPoint } from "src/interfaces/IEntryPoint.sol";
 
