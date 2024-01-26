@@ -14,14 +14,14 @@
 
 pragma solidity ^0.8.18;
 
-import { OwnableUpgradeable } from "openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
-import { UUPSUpgradeable } from "openzeppelin-contracts/contracts/proxy/utils/UUPSUpgradeable.sol";
 import { SafeERC20, IERC20 } from "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
+
+import { ExternalUpgrader } from "src/abstracts/ExternalUpgrader.sol";
 
 /**
  * A permissioned swap contract for the Chainless Account Abstraction (EIP-4337) app
  */
-contract ChainlessPermissionedSwap is UUPSUpgradeable, OwnableUpgradeable {
+contract ChainlessPermissionedSwap is ExternalUpgrader {
     using SafeERC20 for IERC20;
 
     /**
@@ -90,11 +90,6 @@ contract ChainlessPermissionedSwap is UUPSUpgradeable, OwnableUpgradeable {
     function initialize() public initializer {
         __Ownable_init(msg.sender);
     }
-
-    /**
-     * Allow owner to upgrade implementation
-     */
-    function _authorizeUpgrade(address) internal override onlyOwner {}
 
     /**
      * @notice Checks if the transaction is pending

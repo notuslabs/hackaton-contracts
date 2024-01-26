@@ -17,13 +17,13 @@ pragma solidity ^0.8.18;
 import { ECDSA } from "openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol";
 import { MessageHashUtils } from "openzeppelin-contracts/contracts/utils/cryptography/MessageHashUtils.sol";
 import { IERC20, SafeERC20 } from "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
-import { OwnableUpgradeable } from "openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
 
 import { IEntryPoint } from "src/interfaces/IEntryPoint.sol";
 import { IPaymaster } from "src/interfaces/IPaymaster.sol";
 import { UserOperation } from "src/interfaces/UserOperation.sol";
+import { ExternalUpgrader } from "src/abstracts/ExternalUpgrader.sol";
 
-contract ChainlessPaymaster is IPaymaster, OwnableUpgradeable {
+contract ChainlessPaymaster is IPaymaster, ExternalUpgrader {
     uint256 private constant _POST_OP_GAS_COST = 47_316;
 
     bytes4 private constant _OPERATION_CODE = bytes4(hex"095ea7b3");
