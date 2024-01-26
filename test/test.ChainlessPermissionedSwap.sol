@@ -19,33 +19,33 @@ contract SwapTest is Test {
         invest = new TestERC20("Investment", "STONKS");
     }
 
-    function accept__No_pending_tx_at_start() public {
+    function test_accept__No_pending_tx_at_start() public {
         uint256 m = swap.getAmountPendingTx();
         assertEq(m, 0);
     }
 
-    function test_revert__Invest_in_token_not_whitelisted() public {
-        vm.expectRevert("ERR_INVALID_OUT_TOKEN");
+    function test_revert__Invest_payWith_token_not_whitelisted() public {
+        swap.addInvestToken(address(invest), 1 ether);
+        vm.expectRevert(abi.encodeWithSelector(ChainlessPermissionedSwap.TokenNotAllowed.selector, fiat));
         swap.invest(invest, msg.sender, fiat, 1 ether);
     }
 
-    function test_revert__Invest_out_token_not_whitelisted() public {
-        swap.addInvestToken(address(invest), 1 ether);
+    function test_revert__Invest_receive_token_not_whitelisted() public {
         swap.addFiatToken(address(fiat), 1 ether);
-        vm.expectRevert("ERR_MIN_PAY_TOKEN");
-        swap.invest(invest, msg.sender, fiat, 0.1 ether);
+        vm.expectRevert(abi.encodeWithSelector(ChainlessPermissionedSwap.TokenNotAllowed.selector, invest));
+        swap.invest(invest, msg.sender, fiat, 1 ether);
     }
 
-    function test_revert__Withdraw_in_token_not_whitelisted() public {
-        vm.expectRevert("ERR_INVALID_OUT_TOKEN");
+    function test_revert__Withdraw_payWith_token_not_whitelisted() public {
+        swap.addFiatToken(address(fiat), 1 ether);
+        vm.expectRevert(abi.encodeWithSelector(ChainlessPermissionedSwap.TokenNotAllowed.selector, invest));
         swap.withdraw(fiat, msg.sender, invest, 1 ether);
     }
 
-    function test_revert__Withdraw_out_token_not_whitelisted() public {
+    function test_revert__Withdraw_receive_token_not_whitelisted() public {
         swap.addInvestToken(address(invest), 1 ether);
-        swap.addFiatToken(address(fiat), 1 ether);
-        vm.expectRevert("ERR_MIN_PAY_TOKEN");
-        swap.withdraw(fiat, msg.sender, invest, 0.1 ether);
+        vm.expectRevert(abi.encodeWithSelector(ChainlessPermissionedSwap.TokenNotAllowed.selector, fiat));
+        swap.withdraw(fiat, msg.sender, invest, 1 ether);
     }
 
     function test_revert__Invest_amount_must_be_positive() public {
