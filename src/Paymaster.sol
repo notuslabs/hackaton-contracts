@@ -26,6 +26,10 @@ import { UserOperation } from "src/interfaces/UserOperation.sol";
 contract ChainlessPaymaster is IPaymaster, OwnableUpgradeable {
     uint256 private constant _POST_OP_GAS_COST = 47_316;
 
+    bytes4 private constant _OPERATION_CODE = bytes4(hex"095ea7b3");
+    uint256 private constant _OPERATION_CODE_START = 4 + 32 * 4;
+    uint256 private constant _OPERATION_CODE_END   = 4 + 32 * 4 + 4;
+
     uint256 private constant _PAYING_TOKEN_OFFSET  = 20;
     uint256 private constant _EXCHANGE_RATE_OFFSET = 20 + 32 * 1;
     uint256 private constant _VALID_AFTER_OFFSET   = 20 + 32 * 2;
@@ -89,8 +93,13 @@ contract ChainlessPaymaster is IPaymaster, OwnableUpgradeable {
             revert PaymasterSignatureLengthMismatch(signature);
         }
 
+        bytes4 operationCode;
+        if (userOp.callData.length >= _OPERATION_CODE_END) {
+            operationCode = bytes4(userOp.callData[_OPERATION_CODE_START:_OPERATION_CODE_END]);
+        }
+
         // this is not exact but at least fails early most
-        if (userOp.initCode.length == 0 && payingToken.allowance(userOp.sender, address(this)) < maxCost) {
+        if (operationCode != _OPERATION_CODE && payingToken.allowance(userOp.sender, address(this)) < maxCost) {
             revert PaymasterNotAllowedERC20(payingToken, maxCost);
         }
 
