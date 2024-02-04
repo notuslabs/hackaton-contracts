@@ -11,12 +11,12 @@ Submodules may download the entire history, to shallow clone them execute one of
 
 When cloning the repository for the first time make sure you also initialize the submodules:
 ```sh
-git clone --recurse-submodules
+git clone --recurse-submodules --shallow-submodules
 ```
 
 If you have not cloned using the above flag, you can shallow clone the submodules with this:
 ```sh
-git submodule update --init --depth=1
+git submodule update --init --recursive --depth=1
 ```
 
 ## Foundry
