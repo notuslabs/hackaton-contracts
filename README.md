@@ -69,7 +69,13 @@ $ anvil
 ### Deploy
 
 ```shell
-$ forge script script/ChainlessPermissionedSwap.s.sol:ChainlessPermissionedSwapScript --rpc-url <your_rpc_url> --private-key <your_private_key>
+$ source .env
+$ forge script script/ChainlessPermissionedSwap.s.sol:ChainlessPermissionedSwapScript \
+    --rpc-url $<CHAIN>_RPC_URL \
+    --private-key $PRIVATE_KEY \
+    --broadcast \
+    --verify \
+    -vvv
 ```
 
 ### Cast
