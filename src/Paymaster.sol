@@ -24,7 +24,7 @@ import { UserOperation } from "src/interfaces/UserOperation.sol";
 import { ExternalUpgrader } from "src/abstracts/ExternalUpgrader.sol";
 
 contract ChainlessPaymaster is IPaymaster, ExternalUpgrader {
-    uint256 private constant _POST_OP_GAS_COST = 47_316;
+    uint256 private constant _POST_OP_GAS = 47_316;
 
     // forgefmt: disable-start
     bytes4 private constant _OPERATION_CODE = bytes4(hex"095ea7b3");
@@ -131,9 +131,9 @@ contract ChainlessPaymaster is IPaymaster, ExternalUpgrader {
             sender := calldataload(add(context.offset, 64))
         }
 
-        uint256 payingTokenCost = (((actualGasCost + _POST_OP_GAS_COST) * tx.gasprice) * exchangeRate) / 1e18;
-
         if (mode != PostOpMode.postOpReverted) {
+            uint256 payingTokenCost = ((actualGasCost + (_POST_OP_GAS * tx.gasprice)) * exchangeRate) / 1e18;
+
             payingToken.safeTransferFrom(sender, owner(), payingTokenCost);
         }
     }
