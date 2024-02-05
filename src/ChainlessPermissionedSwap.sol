@@ -61,6 +61,7 @@ contract ChainlessPermissionedSwap is ExternalUpgrader {
     mapping(address token => uint256 minAmount) private _fiatTokens;
     mapping(address token => uint256 minAmount) private _investTokens;
 
+    // forgefmt: disable-start
     /**
      * @dev Emitted when a swap is requested by a user
      */
@@ -73,7 +74,9 @@ contract ChainlessPermissionedSwap is ExternalUpgrader {
         uint256         payAmount,
         uint256         txNonce
     );
+    // forgefmt: disable-end
 
+    // forgefmt: disable-start
     /**
      * @dev Emitted when a swap is fulfilled0
      */
@@ -83,6 +86,7 @@ contract ChainlessPermissionedSwap is ExternalUpgrader {
         IERC20  indexed token,
         uint256         amount
     );
+    // forgefmt: disable-end
 
     /**
      * Must call on deploy to initialize (constructor of upgradable contracts)

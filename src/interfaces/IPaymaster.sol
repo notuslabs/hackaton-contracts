@@ -10,11 +10,13 @@ import { UserOperation } from "./UserOperation.sol";
  */
 interface IPaymaster {
     // user op 'state' on postOp call
+    // forgefmt: disable-start
     enum PostOpMode {
         opSucceeded,   // user op succeeded.
         opReverted,    // user op reverted, still has to pay for gas.
         postOpReverted // user op succeeded, but caused postOp to revert. 2nd call after user op was forcibly cancelled.
     }
+    // forgefmt: disable-end
 
     /**
      * Asks the paymaster if they agree to pay for this user operation.

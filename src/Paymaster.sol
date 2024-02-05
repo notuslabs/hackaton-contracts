@@ -26,6 +26,7 @@ import { ExternalUpgrader } from "src/abstracts/ExternalUpgrader.sol";
 contract ChainlessPaymaster is IPaymaster, ExternalUpgrader {
     uint256 private constant _POST_OP_GAS_COST = 47_316;
 
+    // forgefmt: disable-start
     bytes4 private constant _OPERATION_CODE = bytes4(hex"095ea7b3");
     uint256 private constant _OPERATION_CODE_START = 4 + 32 * 4;
     uint256 private constant _OPERATION_CODE_END   = 4 + 32 * 4 + 4;
@@ -35,6 +36,7 @@ contract ChainlessPaymaster is IPaymaster, ExternalUpgrader {
     uint256 private constant _VALID_AFTER_OFFSET   = 20 + 32 * 2;
     uint256 private constant _VALID_UNTIL_OFFSET   = 20 + 32 * 3;
     uint256 private constant _SIGNATURE_OFFSET     = 20 + 32 * 4;
+    // forgefmt: disable-end
 
     using SafeERC20 for IERC20;
 
@@ -105,7 +107,6 @@ contract ChainlessPaymaster is IPaymaster, ExternalUpgrader {
 
         context = abi.encode(payingToken, exchangeRate, userOp.sender);
 
-        // 208 = 160 + 48
         validationData = ((validationData | validAfter) << 48 | validUntil) << 160;
 
         bytes32 msgHash = keccak256(userOp.paymasterAndData[_PAYING_TOKEN_OFFSET:_SIGNATURE_OFFSET]);
