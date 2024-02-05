@@ -40,9 +40,6 @@ jobs:
           forge build --sizes
         id: build
 
-      - name: Run Slither
-        uses: crytic/slither-action@v0.3.1
-
       - name: Run Forge tests
         run: |
           forge test -vvv
@@ -52,3 +49,6 @@ jobs:
         run: |
           forge fmt --check
         id: lint
+
+      - name: Run Slither
+        uses: crytic/slither-action@v0.3.1
