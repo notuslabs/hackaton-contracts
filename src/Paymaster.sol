@@ -46,9 +46,9 @@ contract ChainlessPaymaster is IPaymaster, ExternalUpgrader {
     error SenderIsNotEntryPoint(address sender);
 
     /**
-     * Wrong paymaster signature length
+     * Wrong paymasterAndData length
      */
-    error PaymasterSignatureLengthMismatch(bytes signature);
+    error PaymasterAndDataLengthMismatch(uint256 length, uint256 expected);
 
     /**
      * Paymaster not allowed to spend token
@@ -88,12 +88,12 @@ contract ChainlessPaymaster is IPaymaster, ExternalUpgrader {
         onlyEntryPoint
         returns (bytes memory context, uint256 validationData)
     {
+        if (userOp.paymasterAndData.length != 213) {
+            revert PaymasterAndDataLengthMismatch(userOp.paymasterAndData.length, 213);
+        }
+
         (IERC20 payingToken, uint256 exchangeRate, uint48 validAfter, uint48 validUntil, bytes calldata signature) =
             _parsePaymasterData(userOp.paymasterAndData);
-
-        if (signature.length != 65) {
-            revert PaymasterSignatureLengthMismatch(signature);
-        }
 
         bytes4 operationCode;
         if (userOp.callData.length >= _OPERATION_CODE_END) {

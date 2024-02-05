@@ -56,7 +56,13 @@ contract PaymasterTest is Test {
 
         UserOperation memory userOp = createUserOperation(address(this), address(payingToken), 0, 0, 0, "", signature);
 
-        vm.expectRevert(abi.encodeWithSelector(ChainlessPaymaster.PaymasterSignatureLengthMismatch.selector, signature));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                ChainlessPaymaster.PaymasterAndDataLengthMismatch.selector,
+                userOp.paymasterAndData.length,
+                userOp.paymasterAndData.length - signature.length + 65
+            )
+        );
         paymaster.validatePaymasterUserOp(userOp, "", 0);
     }
 
@@ -152,7 +158,7 @@ contract PaymasterTest is Test {
         // if we are dealing with very low values they could be zero, these should be very rare
         vm.assume(payingToken.balanceOf(address(payingToken)) > 0);
 
-        uint256 payingTokenCost = (((actualGasCost + postOpGasCost) * tx.gasprice) * exchangeRate) / 1e18;
+        uint256 payingTokenCost = ((actualGasCost + (postOpGasCost * tx.gasprice)) * exchangeRate) / 1e18;
         assertEq(payingTokenCost, payingToken.balanceOf(address(payingToken)), "Amount we expect should match");
     }
 }
