@@ -29,14 +29,14 @@ contract PaymasterTest is Test {
         uint256 exchangeRate,
         uint256 validAfter,
         uint256 validUntil,
-        bytes memory initCode,
+        bytes memory callData,
         bytes memory signature
     ) public pure returns (UserOperation memory userOp) {
         userOp = UserOperation({
             sender: sender,
             nonce: 0,
-            initCode: initCode,
-            callData: "",
+            initCode: "",
+            callData: callData,
             callGasLimit: 0,
             verificationGasLimit: 0,
             preVerificationGas: 0,
@@ -69,9 +69,12 @@ contract PaymasterTest is Test {
     function test_reject__UserNotAllowedPaymaster(uint256 maxCost) public {
         vm.assume(maxCost > 0);
 
+        bytes memory whatever = abi.encodeWithSignature("whatever(address,uint256)", address(this), 1);
+        bytes memory callData = abi.encodeWithSignature("execute(address,uint256,bytes)", address(this), 0, whatever);
         bytes memory signature =
             hex"0011223344556677889900112233445566778899001122334455667788990011223344556677889900112233445566778899001122334455667788990011223344";
-        UserOperation memory userOp = createUserOperation(address(this), address(payingToken), 0, 0, 0, "", signature);
+        UserOperation memory userOp =
+            createUserOperation(address(this), address(payingToken), 0, 0, 0, callData, signature);
 
         vm.expectRevert(
             abi.encodeWithSelector(ChainlessPaymaster.PaymasterNotAllowedERC20.selector, address(payingToken), maxCost)
