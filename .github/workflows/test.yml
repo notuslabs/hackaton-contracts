@@ -1,6 +1,18 @@
 name: test
 
-on: workflow_dispatch
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - '**.sol'
+      - '!lib/**'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - '**.sol'
+      - '!lib/**'
 
 env:
   FOUNDRY_PROFILE: ci
@@ -28,7 +40,15 @@ jobs:
           forge build --sizes
         id: build
 
+      - name: Run Slither
+        uses: crytic/slither-action@v0.3.1
+
       - name: Run Forge tests
         run: |
           forge test -vvv
         id: test
+
+      - name: Run Forge formatter
+        run: |
+          forge fmt --check
+        id: lint
