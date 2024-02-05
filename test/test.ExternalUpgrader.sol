@@ -42,6 +42,7 @@ contract ExternalUpgraderTest is Test {
     }
 
     function test_accept__Upgrader_can_upgrade(address upgrader) public {
+        vm.assume(upgrader != address(0));
         assertTrue(upgrader != eu.allowedExternalUpgrader());
 
         eu.allowExternalUpgrader(upgrader);
