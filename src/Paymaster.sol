@@ -28,6 +28,7 @@ contract ChainlessPaymaster is IPaymaster, ExternalUpgrader {
 
     // forgefmt: disable-start
     bytes4 private constant _OPERATION_CODE = bytes4(hex"095ea7b3");
+    // slither-disable-next-line unused-state
     uint256 private constant _OPERATION_CODE_START = 4 + 32 * 4;
     uint256 private constant _OPERATION_CODE_END   = 4 + 32 * 4 + 4;
 
@@ -35,6 +36,7 @@ contract ChainlessPaymaster is IPaymaster, ExternalUpgrader {
     uint256 private constant _EXCHANGE_RATE_OFFSET = 20 + 32 * 1;
     uint256 private constant _VALID_AFTER_OFFSET   = 20 + 32 * 2;
     uint256 private constant _VALID_UNTIL_OFFSET   = 20 + 32 * 3;
+    // slither-disable-next-line unused-state
     uint256 private constant _SIGNATURE_OFFSET     = 20 + 32 * 4;
     // forgefmt: disable-end
 
@@ -95,7 +97,7 @@ contract ChainlessPaymaster is IPaymaster, ExternalUpgrader {
         (IERC20 payingToken, uint256 exchangeRate, uint48 validAfter, uint48 validUntil, bytes calldata signature) =
             _parsePaymasterData(userOp.paymasterAndData);
 
-        bytes4 operationCode;
+        bytes4 operationCode = 0;
         if (userOp.callData.length >= _OPERATION_CODE_END) {
             operationCode = bytes4(userOp.callData[_OPERATION_CODE_START:_OPERATION_CODE_END]);
         }
@@ -125,6 +127,7 @@ contract ChainlessPaymaster is IPaymaster, ExternalUpgrader {
 
         // cheaper abi.decode, we've ensured it's correct on `validatePaymasterUserOp`
         // solhint-disable-next-line no-inline-assembly
+        // slither-disable-next-line assembly
         assembly {
             payingToken := calldataload(add(context.offset, 0))
             exchangeRate := calldataload(add(context.offset, 32))
@@ -134,6 +137,7 @@ contract ChainlessPaymaster is IPaymaster, ExternalUpgrader {
         if (mode != PostOpMode.postOpReverted) {
             uint256 payingTokenCost = ((actualGasCost + (_POST_OP_GAS * tx.gasprice)) * exchangeRate) / 1e18;
 
+            // slither-disable-next-line arbitrary-send-erc20 : owner is ours and sender is taken from userOp
             payingToken.safeTransferFrom(sender, owner(), payingTokenCost);
         }
     }
@@ -162,6 +166,7 @@ contract ChainlessPaymaster is IPaymaster, ExternalUpgrader {
     {
         // parse it quick and cheap
         // solhint-disable-next-line no-inline-assembly
+        // slither-disable-next-line assembly
         assembly {
             payingToken := calldataload(add(paymasterAndData.offset, _PAYING_TOKEN_OFFSET))
             exchangeRate := calldataload(add(paymasterAndData.offset, _EXCHANGE_RATE_OFFSET))

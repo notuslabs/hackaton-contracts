@@ -40,6 +40,7 @@ abstract contract ExternalUpgrader is UUPSUpgradeable, OwnableUpgradeable {
      * Allow another person to upgrade the contract once
      */
     function allowExternalUpgrader(address upgrader) external onlyOwner {
+        // slither-disable-next-line missing-zero-check : owner disallows by sending zero
         allowedExternalUpgrader = upgrader;
     }
 }
