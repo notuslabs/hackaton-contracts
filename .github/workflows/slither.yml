@@ -1,0 +1,22 @@
+name: Slither Analysis
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - '**.sol'
+      - '!lib/**'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - '**.sol'
+      - '!lib/**'
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: crytic/slither-action@v0.3.1
