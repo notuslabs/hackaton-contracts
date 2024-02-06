@@ -27,11 +27,6 @@ contract ChainlessPaymaster is IPaymaster, ExternalUpgrader {
     uint256 private constant _POST_OP_GAS = 47_316;
 
     // forgefmt: disable-start
-    bytes4 private constant _OPERATION_CODE = bytes4(hex"095ea7b3");
-    // slither-disable-next-line unused-state
-    uint256 private constant _OPERATION_CODE_START = 4 + 32 * 4;
-    uint256 private constant _OPERATION_CODE_END   = 4 + 32 * 4 + 4;
-
     uint256 private constant _PAYING_TOKEN_OFFSET  = 20;
     uint256 private constant _EXCHANGE_RATE_OFFSET = 20 + 32 * 1;
     uint256 private constant _VALID_AFTER_OFFSET   = 20 + 32 * 2;
@@ -51,11 +46,6 @@ contract ChainlessPaymaster is IPaymaster, ExternalUpgrader {
      * Wrong paymasterAndData length
      */
     error PaymasterAndDataLengthMismatch(uint256 length, uint256 expected);
-
-    /**
-     * Paymaster not allowed to spend token
-     */
-    error PaymasterNotAllowedERC20(IERC20 token, uint256 requiredAmount);
 
     /**
      * Entry Point allowed to call paymaster
@@ -83,7 +73,7 @@ contract ChainlessPaymaster is IPaymaster, ExternalUpgrader {
     }
 
     /// @inheritdoc IPaymaster
-    function validatePaymasterUserOp(UserOperation calldata userOp, bytes32, uint256 maxCost)
+    function validatePaymasterUserOp(UserOperation calldata userOp, bytes32, uint256)
         external
         view
         override
@@ -96,16 +86,6 @@ contract ChainlessPaymaster is IPaymaster, ExternalUpgrader {
 
         (IERC20 payingToken, uint256 exchangeRate, uint48 validAfter, uint48 validUntil, bytes calldata signature) =
             _parsePaymasterData(userOp.paymasterAndData);
-
-        bytes4 operationCode = 0;
-        if (userOp.callData.length >= _OPERATION_CODE_END) {
-            operationCode = bytes4(userOp.callData[_OPERATION_CODE_START:_OPERATION_CODE_END]);
-        }
-
-        // this is not exact but at least fails early most
-        if (operationCode != _OPERATION_CODE && payingToken.allowance(userOp.sender, address(this)) < maxCost) {
-            revert PaymasterNotAllowedERC20(payingToken, maxCost);
-        }
 
         context = abi.encode(payingToken, exchangeRate, userOp.sender);
 
