@@ -19,6 +19,12 @@ If you have not cloned using the above flag, you can shallow clone the submodule
 git submodule update --init --recursive --depth=1
 ```
 
+## Deployed Addresses
+
+Check the [broadcast](/notuslabs/chainless-contracts/tree/master/broadcast) directory for the all the deployed
+addresses, the `run-latest.json` files contain the latest addresses of the deployments, previous deployments are in the
+other json files in the same directory.
+
 ## Foundry
 
 **Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
