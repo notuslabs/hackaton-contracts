@@ -97,3 +97,7 @@ $ forge --help
 $ anvil --help
 $ cast --help
 ```
+
+## License
+
+© [2024] [NotusLabs]. All rights reserved.
